@@ -2,6 +2,8 @@ import folia.main as folia
 import csv
 import pandas as pd
 import textstat
+import re
+from nltk.corpus import stopwords
 
 # The path to the BasiLex-Corpus Data folder.
 dataset_path = "path/to/BasiLex/folder/Data/"
@@ -133,3 +135,46 @@ def preprocess_dataset(file_out, file_raw_data, file_issues=None):
     """
     write_dataset(file_raw_data, file_issues)
     filter_dataset(file_raw_data, file_out)
+
+
+def preprocess_frequency_list(freq_list, freq77_file, freq77_no_stop_file):
+    """
+    The preprocessing of the frequency word list by Schrooten & Vermeer (Aflopende-frequentielijst (obv geo gem)
+    https://annevermeer.github.io/woordwerken.html).
+    Removes word meanings/additional information, duplicates and orders the list on highest total frequency.
+    Keeps the words forming a cumulative 77% of the frequency list.
+
+    :param freq_list:           The CSV file containing the frequency word list by Schrooten & Vermeer.
+    :param freq77_file:         The CSV file in which the preprocessed frequency word list is stored.
+    :param freq77_no_stop_file: The CSV file in which the preprocessed frequency word list without stopwords is stored.
+    :return:                    None
+    """
+    fl = pd.read_csv(freq_list, sep=';')
+
+    # Rename Dutch "woord" to English "word" and "fr-total" to "frequency".
+    fl = fl.rename(columns={"woord": "word", "fr-total": "frequency"})
+
+    fl = fl[["word", "frequency"]]
+
+    # Remove additional information and variations to obtain base words.
+    fl.loc[:, "word"] = fl["word"].apply(lambda x: re.sub(r"(\(.+\))|(_.*)|(\*.+)|(.+(?<!\()\.\.\.)", '', x))
+
+    fl = fl.sort_values(by=["frequency"], ascending=False)
+
+    # Remove Dutch stopwords in the NLTK package from the frequency list.
+    stops = set(stopwords.words("dutch"))
+    fl_no_stop = fl[fl["word"].apply(lambda x: x not in stops)]
+    fl_no_stop.loc[:, ["frequency"]] = fl_no_stop["frequency"].cumsum()
+
+    # Frequency word list with stopwords
+    fl.loc[:, "frequency"] = fl["frequency"].cumsum()
+
+    percent77 = fl["frequency"].iloc[-1] * 0.77
+    percent77_no_stop = fl_no_stop["frequency"].iloc[-1] * 0.77
+
+    freq77 = fl[fl["frequency"].apply(lambda x: x <= percent77)].drop_duplicates(subset=["word"])
+    freq77_no_stop = fl_no_stop[fl_no_stop["frequency"].apply(lambda x: x <= percent77_no_stop)] \
+        .drop_duplicates(subset=["word"])
+
+    freq77.loc[:, "word"].to_csv(freq77_file, index=False)
+    freq77_no_stop.loc[:, "word"].to_csv(freq77_no_stop_file, index=False)
