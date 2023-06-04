@@ -1,3 +1,4 @@
+import io
 import folia.main as folia
 import csv
 import pandas as pd
@@ -14,7 +15,7 @@ dataset_map1 = 68
 dataset_map2 = 67
 
 
-def write_dataset(file_out, file_issues):
+def write_dataset(file_out: str, file_issues: str) -> None:
     """
     Reads FoLiA formatted xml files from the BasiLex-Corpus and stores
     the text, type, subtype and grade in a supplied csv file; first round of preprocessing.
@@ -63,7 +64,7 @@ def write_dataset(file_out, file_issues):
         issues_file.close()
 
 
-def read_dataset_paragraph(file_in, file_path):
+def read_dataset_paragraph(file_in: str, file_path: str) -> list[str]:
     """
     Tries to read a file from the BasiLex-Corpus.
     Warnings that the files have no FoLiA version could not be suppressed.
@@ -90,7 +91,7 @@ def read_dataset_paragraph(file_in, file_path):
     return [text, maintype, subtype, grade]
 
 
-def issues_writer(file):
+def issues_writer(file: str) -> (csv.writer, io.TextIOWrapper):
     """
     CSV file writer for issues during write_dataset function.
 
@@ -104,7 +105,8 @@ def issues_writer(file):
     return writer_issues, issues_file
 
 
-def filter_dataset(file_in, file_filtered, words=75, sentences=5, grades=None):
+def filter_dataset(file_in: str, file_filtered: str, words: int = 75, sentences: int = 5, grades: set[str] = None) \
+        -> None:
     """
     Filters the BasiLex dataset to only contain texts with enough words and sentences
     and removes texts not in grades; second round of preprocessing.
@@ -124,7 +126,7 @@ def filter_dataset(file_in, file_filtered, words=75, sentences=5, grades=None):
     filtered.to_csv(file_filtered, index=False)
 
 
-def preprocess_dataset(file_out, file_raw_data, file_issues=None):
+def preprocess_dataset(file_out: str, file_raw_data: str, file_issues: str = None) -> None:
     """
     The preprocessing of the BasiLex-Corpus.
 
@@ -137,7 +139,7 @@ def preprocess_dataset(file_out, file_raw_data, file_issues=None):
     filter_dataset(file_raw_data, file_out)
 
 
-def preprocess_frequency_list(freq_list, freq77_file, freq77_no_stop_file):
+def preprocess_frequency_list(freq_list: str, freq77_file: str, freq77_no_stop_file: str) -> None:
     """
     The preprocessing of the frequency word list by Schrooten & Vermeer (Aflopende-frequentielijst (obv geo gem)
     https://annevermeer.github.io/woordwerken.html).
