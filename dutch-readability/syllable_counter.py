@@ -9,7 +9,7 @@ celex_path = "path/to/celex/file/dpw.cd"
 
 def dictionary_init() -> dict[str]:
     """
-    Reads the CELEX data and turns it into a word-syllable count dictionary.
+    Reads the CELEX dataset and turns it into a word-syllable count dictionary.
 
     :return: Dictionary containing Dutch words and their syllable count.
     """
@@ -91,9 +91,17 @@ def clean_text(text: str) -> str:
 
 class SyllableCounter:
     """
-    A class which contains a Dutch words with syllable count dictionary
-    which is used to count the amount of syllables in a text.
+    A syllable counter for Dutch words and texts using a dictionary of known Dutch words and their syllables.
+
+    Attribute textstat_count: Integer representing the amount of partially and completely unknown words
+                              in the CELEX dataset.
+                              Used in text_accuracy_syllable_counter.accuracy_compound_unique_words.
+    Attribute unknown_count:  Integer representing the amount of unknown words in the CELEX dataset.
+                              Used in text_accuracy_syllable_counter.accuracy_compound_unique_words.
     """
+
+    __textstat_count = 0
+    __unknown_count = 0
 
     def __init__(self):
         """
@@ -102,14 +110,33 @@ class SyllableCounter:
         textstat.set_lang("nl")
         self.dictionary = dictionary_init()
 
-    def composite_word_syllables(self, word: str, original: str) -> Optional[int]:
+    def get_textstat_count(self) -> int:
+        """
+        Gets the textstat_count attribute.
+
+        :return: Integer representing the amount of words either partially or completely unknown to the dictionary.
+        """
+        return self.__textstat_count
+
+    def get_unknown_count(self) -> int:
+        """
+        Gets the unknown_count attribute.
+
+        :return: Integer representing the amount of words completely unknown to the dictionary.
+        """
+        return self.__unknown_count
+
+    def composite_word_syllables(self, word: str, original: str, test_accuracy: bool = False) -> Optional[int]:
         """
         Splits the word into possibly multiple words and tries to match these in the class dictionary
         to obtain the amount of syllables of the word.
+        test_accuracy is used in test_accuracy_syllable_counter.py to test the accuracy of the
+        syllable counter.
 
-        :param word:     The String to be split into possibly multiple Strings in order to count its syllables.
-        :param original: The original String when this method was called for the first time.
-        :return:         The amount of syllables or None.
+        :param word:          The String to be split into possibly multiple Strings in order to count its syllables.
+        :param original:      The original String when this method was called for the first time.
+        :param test_accuracy: Boolean denoting if the count_syllables_word method is run as an accuracy test.
+        :return:              The amount of syllables or None.
         """
         # Split a word while never dealing with a single character.
         for i in range(len(word) - 2, 1, -1):
@@ -133,31 +160,39 @@ class SyllableCounter:
                     or word1.endswith("ems") or word1.endswith("ies") or word1.endswith("eaus")) \
                         and word1[0:len(word1) - 1] in self.dictionary:
 
-                    return self.dictionary[word1[0:len(word1) - 1]] + self.count_syllables_word("s" + word2, original)
+                    return self.dictionary[word1[0:len(word1) - 1]] \
+                        + self.count_syllables_word("s" + word2, original, test_accuracy)
 
                 # First part of the compound word is known.
-                return self.dictionary[word1] + self.count_syllables_word(word2, original)
+                return self.dictionary[word1] + self.count_syllables_word(word2, original, test_accuracy)
 
         # Checks if a connection s in a compound word was added.
         if word[0] == "s" and word != original:
-            return self.count_syllables_word(word[1:len(word)], original)
+            return self.count_syllables_word(word[1:len(word)], original, test_accuracy)
 
-    def count_syllables_word(self, word: str, original: str) -> int:
+    def count_syllables_word(self, word: str, original: str, test_accuracy: bool = False) -> int:
         """
         Counts the amount of syllables in a given word String.
+        test_accuracy is used in test_accuracy_syllable_counter.py to test the accuracy of the
+        syllable counter.
 
-        :param word:     The String for which syllables should be counted.
-        :param original: The original String entered.
-        :return:         The amount of syllables in the word.
+        :param word:          The String for which syllables should be counted.
+        :param original:      The original String entered.
+        :param test_accuracy: Boolean denoting if this method is run as an accuracy test.
+        :return:              The amount of syllables in the word.
         """
         if word in self.dictionary:
             return self.dictionary[word]
 
         # Checks if parts of the compound word are in the class dictionary.
-        composite_syllables = self.composite_word_syllables(word, original)
+        composite_syllables = self.composite_word_syllables(word, original, test_accuracy)
         if composite_syllables is not None:
             return composite_syllables
 
+        if test_accuracy:
+            self.__textstat_count += 1
+            if word == original:
+                self.__unknown_count += 1
         # If a word or parts of the word are not in the class dictionary, use Textstat's syllable_count method.
         return textstat.syllable_count(word)
 
