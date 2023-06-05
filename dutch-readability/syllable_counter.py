@@ -93,11 +93,6 @@ class SyllableCounter:
     """
     A syllable counter for Dutch words and texts using a dictionary of known Dutch words and their syllables.
 
-    Attribute textstat_count: Integer representing the amount of partially and completely unknown words
-                              in the CELEX dataset.
-                              Used in text_accuracy_syllable_counter.accuracy_compound_unique_words.
-    Attribute unknown_count:  Integer representing the amount of unknown words in the CELEX dataset.
-                              Used in text_accuracy_syllable_counter.accuracy_compound_unique_words.
     Attribute dictionary: Dictionary containing Dutch words as keys to their syllable counts.
     """
 
