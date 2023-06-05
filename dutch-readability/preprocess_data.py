@@ -178,5 +178,8 @@ def preprocess_frequency_list(freq_list: str, freq77_file: str, freq77_no_stop_f
     freq77_no_stop = fl_no_stop[fl_no_stop["frequency"].apply(lambda x: x <= percent77_no_stop)] \
         .drop_duplicates(subset=["word"])
 
+    freq77.loc[:, "word"] = freq77["word"].apply(lambda x: textstat.remove_punctuation(x))
+    freq77_no_stop.loc[:, "word"] = freq77_no_stop["word"].apply(lambda x: textstat.remove_punctuation(x))
+
     freq77.loc[:, "word"].to_csv(freq77_file, index=False)
     freq77_no_stop.loc[:, "word"].to_csv(freq77_no_stop_file, index=False)
