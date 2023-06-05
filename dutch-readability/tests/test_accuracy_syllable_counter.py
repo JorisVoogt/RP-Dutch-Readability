@@ -56,10 +56,10 @@ def accuracy_compound_unique_words(dataset: set[str]) -> str:
     for word in dataset:
         sc.count_syllables_word(word, word, test_accuracy=True)
 
-    return "Accuracy compound unique words in CELEX dataset: " + str(((total-sc.get_textstat_count())/total)*100) \
+    return "Accuracy compound unique words in CELEX dataset: " + str(((total-sc.textstat_count)/total)*100) \
         + "\nPercentage of words partially using Textstat's syllable_count: " \
-        + str(((sc.get_textstat_count()-sc.get_unknown_count())/total)*100) \
-        + "\nPercentage of words completely using Textstat's syllable_count: " + str((sc.get_unknown_count()/total)*100)
+        + str(((sc.textstat_count-sc.unknown_count)/total)*100) \
+        + "\nPercentage of words completely using Textstat's syllable_count: " + str((sc.unknown_count/total)*100)
 
 
 def accuracy_syllable_counter(file: str = "Data/words_and_syllables.csv") -> str:
