@@ -4,6 +4,7 @@ import re
 import unicodedata
 from typing import Optional
 
+# The path to the CELEX dpw.cd file.
 celex_path = "path/to/celex/file/dpw.cd"
 
 

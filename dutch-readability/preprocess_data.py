@@ -14,6 +14,9 @@ dataset_data_map = 68
 dataset_map1 = 68
 dataset_map2 = 67
 
+# Importing Dutch stopwords from the NLTK package.
+stops = set(stopwords.words("dutch"))
+
 
 def write_dataset(file_out: str, file_issues: str) -> None:
     """
@@ -105,33 +108,40 @@ def issues_writer(file: str) -> (csv.writer, io.TextIOWrapper):
     return writer_issues, issues_file
 
 
-def filter_dataset(file_in: str, file_filtered: str, words: int = 75, sentences: int = 5, grades: set[str] = None) \
-        -> None:
+def filter_dataset(file_in: str, file_filtered: str, words: int = 75, sentences: int = 5, grades: set = None,
+                   grade_dict: dict = None) -> None:
     """
-    Filters the BasiLex dataset to only contain texts with enough words and sentences
-    and removes texts not in grades; second round of preprocessing.
+    Filters the BasiLex dataset to only contain texts with enough words and sentences,
+    removes texts not in grades and changes a grade system if supplied; second round of preprocessing.
 
     :param file_in:       The BasiLex dataset CSV file obtained after the first round of preprocessing.
     :param file_filtered: The CSV file in which the filtered BasiLex dataset is stored.
     :param words:         (optional) The amount of words a text should contain, set to 75.
     :param sentences:     (optional) The amount of sentences a text should contain, set to 5.
     :param grades:        (optional) The grades a text is meant for, set to (3-8, 1VO and 2VO).
+    :param grade_dict:    (optional) A dictionary changing the current grade system to another, set to American
+                          if both grades and grade_dict are None.
     :return:              None
     """
     if grades is None:
         grades = {"3", "4", "5", "6", "7", "8", "1VO", "2VO"}
+        if grade_dict is None:
+            grade_dict = {"3": 1, "4": 2, "5": 3, "6": 4, "7": 5, "8": 6, "1VO": 7, "2VO": 8}
+
     df = pd.read_csv(file_in, sep=';')
     df = df[df["text"].apply(lambda x: len(x.split()) >= words and textstat.sentence_count(x) >= sentences)]
-    filtered = df[df["grade"].apply(lambda x: x in grades)]
-    filtered.to_csv(file_filtered, index=False)
+    df = df[df["grade"].apply(lambda x: x in grades)]
+    if grade_dict is not None:
+        df["grade"] = df["grade"].map(grade_dict)
+    df.to_csv(file_filtered, index=False)
 
 
-def preprocess_dataset(file_out: str, file_raw_data: str, file_issues: str = None) -> None:
+def preprocess_dataset(file_raw_data: str, file_out: str, file_issues: str = None) -> None:
     """
     The preprocessing of the BasiLex-Corpus.
 
-    :param file_out:      The CSV file in which the preprocessed dataset is stored.
     :param file_raw_data: The CSV file in which the raw dataset is stored.
+    :param file_out:      The CSV file in which the preprocessed dataset is stored.
     :param file_issues:   (optional) The CSV file in which non-readable or entries with no grades are stored.
     :return:              None
     """
@@ -164,7 +174,6 @@ def preprocess_frequency_list(freq_list: str, freq77_file: str, freq77_no_stop_f
     fl = fl.sort_values(by=["frequency"], ascending=False)
 
     # Remove Dutch stopwords in the NLTK package from the frequency list.
-    stops = set(stopwords.words("dutch"))
     fl_no_stop = fl[fl["word"].apply(lambda x: x not in stops)]
     fl_no_stop.loc[:, ["frequency"]] = fl_no_stop["frequency"].cumsum()
 
