@@ -136,17 +136,17 @@ def filter_dataset(file_in: str, file_filtered: str, words: int = 75, sentences:
     df.to_csv(file_filtered, index=False)
 
 
-def preprocess_dataset(file_raw_data: str, file_out: str, file_issues: str = None) -> None:
+def preprocess_dataset(file_process_one: str, file_out: str, file_issues: str = None) -> None:
     """
     The preprocessing of the BasiLex-Corpus.
 
-    :param file_raw_data: The CSV file in which the raw dataset is stored.
-    :param file_out:      The CSV file in which the preprocessed dataset is stored.
-    :param file_issues:   (optional) The CSV file in which non-readable or entries with no grades are stored.
-    :return:              None
+    :param file_process_one: The CSV file in which the dataset is stored after the first round of preprocessing.
+    :param file_out:         The CSV file in which the fully preprocessed dataset is stored.
+    :param file_issues:      (optional) The CSV file in which non-readable or entries with no grades are stored.
+    :return:                 None
     """
-    write_dataset(file_raw_data, file_issues)
-    filter_dataset(file_raw_data, file_out)
+    write_dataset(file_process_one, file_issues)
+    filter_dataset(file_process_one, file_out)
 
 
 def preprocess_frequency_list(freq_list: str, freq77_file: str, freq77_no_stop_file: str) -> None:
