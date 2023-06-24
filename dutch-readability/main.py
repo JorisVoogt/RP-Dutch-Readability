@@ -3,7 +3,8 @@ import readability_estimation
 import results
 
 # This shows how to reproduce the research one-to-one.
-# The BasiLex-corpus and CELEX dpw.cd files are required for full reproducibility, see README.md.
+# The BasiLex-corpus, CELEX dpw.cd file and frequency word list by Schrooten & Vermeer are required
+# for full reproducibility, see README.md.
 # The BasiLex-corpus path must be set in preprocess_data.py and the CELEX dpw.cd file path must be set
 # in syllable_counter.py.
 
