@@ -9,7 +9,7 @@ In order to be able to fully reproduce our experiments, the following requiremen
 ## Data Sets
 
 - The BasiLex-corpus can be obtained [here](https://taalmaterialen.ivdnt.org/download/tstc-basilex-corpus/) using a non-commercial license.
-- The CELEX data set used in the syllable counter can be found [here](https://github.com/KBNLresearch/scansion-generator).
+- The CELEX data set (dpw.cd) used in the syllable counter can be found [here](https://github.com/KBNLresearch/scansion-generator).
 - Schrooten & Vermeer's frequency word list can be downloaded from [here](https://annevermeer.github.io/woordwerken.html) (Aflopende-frequentielijst (obv geo gem)).
 
 Adaptations of the frequency word list and intermediate results (readability formula scores) can be found under resources and depending on your use case
@@ -19,4 +19,10 @@ might prove enough.
 
 | File | Packages required |
 | --- | --- |
-| Preprocessing | |
+| Preprocess Data | nltk, pandas, folia, textstat |
+| Syllable Counter | textstat |
+| Test Syllable Counter | textstat, pandas |
+| Readability Estimation | textstat, spacy, pandas, nltk |
+| Results | pandas, matplotlib, seaborn |
+| Significance Testing | pandas |
+
