@@ -239,4 +239,4 @@ def boxplot_error_rates(boxplot_data: str) -> None:
     [g.axes[5, j].set_xlabel("Grade", fontsize=14) for j in range(3)]
 
     plt.gcf().set_size_inches(10, 10)
-    g.savefig(fname="Data/Figures/error_rates_test.png")
+    g.savefig(fname="resources/figures/error_rates.png")
