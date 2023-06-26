@@ -1,4 +1,4 @@
-type,grade,FD-score,LiA-score,CLIB-score,CLIB_stop-score,CILT-score,CILT_stop-score
+maintype,grade,FD-score,LiA-score,CLIB-score,CLIB_stop-score,CILT-score,CILT_stop-score
 media,3,95,87,46,41,62,65
 leesboeken,5,87,80,44,41,65,67
 leesboeken,5,88,80,39,37,67,69
